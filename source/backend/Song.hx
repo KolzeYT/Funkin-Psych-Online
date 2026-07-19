@@ -3,6 +3,8 @@ package backend;
 import objects.Note;
 import tjson.TJSON as Json;
 import lime.utils.Assets;
+import moonchart.formats.fnf.FNFVSlice;
+import moonchart.formats.fnf.legacy.FNFPsych;
 
 #if sys
 import sys.io.File;
@@ -132,6 +134,11 @@ class Song
 	}
 
 	public static function loadRawSong(jsonInput:String, ?folder:String):String {
+		trace(Mods.getModEngine(Mods.currentModDirectory));
+		if(Mods.getModEngine(Mods.currentModDirectory) != ModEngine.PSYCH)
+			return loadRawNonPsychSong(jsonInput, folder);
+
+
 		var rawJson = null;
 
 		var formattedFolder:String = Paths.formatToSongPath(folder);
@@ -164,6 +171,23 @@ class Song
 		}
 
 		return rawJson;
+	}
+
+	private static function loadRawNonPsychSong(jsonInput:String, ?folder:String):String {
+		var path = Paths.mods(Mods.currentModDirectory + '/');
+		trace(jsonInput);
+
+		switch(Mods.getModEngine(Mods.currentModDirectory)){
+			case ModEngine.VSLICE:
+				var ogChart = new FNFVSlice().fromJson(File.getContent('${path}data/songs/${folder}/${folder}-chart.json'), File.getContent('${path}data/songs/${folder}/${folder}-metadata.json'), jsonInput.replace('${folder}-', ''));
+				var chart = new FNFPsych().fromFormat(ogChart);
+				
+				return chart.stringify().data;
+			default:
+				trace('no support yet');
+		}
+
+		return "";
 	}
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong

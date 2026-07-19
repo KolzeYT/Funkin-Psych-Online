@@ -738,6 +738,7 @@ class PlayState extends MusicBeatState
 				swagStage = swagStage + '-erect';
 			}
 			curStage = swagStage;
+			trace(curStage);
 
 			stageData = StageData.getStageFile(curStage);
 			if (stageData == null) { // Stage couldn't be found, create a dummy stage for preventing a crash
@@ -887,6 +888,15 @@ class PlayState extends MusicBeatState
 					case 'tank-erect', 'tankmanBattlefieldErect': new states.stages.FranksSpiritsBowling(); // Week 7 (Erect)
 					case 'phillyStreets', 'phillyStreets-erect', 'phillyStreetsErect': new states.stages.PhillyStreets(); // Weekend 1
 					case 'phillyBlazin': new states.stages.PhillyBlazin(); // Weekend 1 (Blazin')
+					default:
+						if(Mods.getCurrentModEngine() != ModEngine.PSYCH){
+							switch(Mods.getCurrentModEngine()){
+								case ModEngine.VSLICE:
+									new states.stages.compatibility.StageVSlice();
+								default:
+									trace('no compatibility');
+							}
+						}
 				}
 			}
 

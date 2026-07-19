@@ -59,6 +59,9 @@ class MainMenuState extends MusicBeatState
 		#end
 		Mods.loadTopMod();
 
+		trace(Mods.getModEngine('kaucja'));
+		// trace(Mods.parseList());
+
 		#if DISCORD_ALLOWED
 		// Updating Discord Rich Presence
 		DiscordClient.resetClientID();

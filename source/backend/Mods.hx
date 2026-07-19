@@ -14,6 +14,13 @@ typedef ModsList = {
 	all:Array<String>
 };
 
+enum abstract ModEngine(Int)
+{
+	var PSYCH = 0;
+	var VSLICE = 1;
+	var CNE = 2;
+}
+
 class Mods
 {
 	static public var currentModDirectory:String = '';
@@ -94,6 +101,25 @@ class Mods
 					mergedList.push(value);
 		}
 		return mergedList;
+	}
+
+	public static function getModEngine(name:String):Null<ModEngine>
+	{
+
+		var path:String = Paths.mods(name);
+
+		if(!FileSystem.exists(path))
+			return null;
+
+		else if(FileSystem.exists(path+"/_polymod_meta.json"))
+			return ModEngine.VSLICE;
+		
+		return ModEngine.PSYCH;
+	}
+
+	inline public static function getCurrentModEngine():Null<ModEngine>
+	{
+		return getModEngine(currentModDirectory);
 	}
 
 	inline public static function directoriesWithFile(path:String, fileToFind:String, mods:Bool = true)

@@ -105,6 +105,10 @@ class StageData {
 	}
 
 	public static function getStageFile(stage:String):StageFile {
+
+		if(Mods.getModEngine(Mods.currentModDirectory) != ModEngine.PSYCH)
+			return getNonPsychStageFile(stage);
+
 		var rawJson:String = null;
 		var path:String = Paths.getPreloadPath('stages/' + stage + '.json');
 
@@ -125,6 +129,27 @@ class StageData {
 			return null;
 		}
 		return cast Json.parse(rawJson);
+	}
+
+	public static function getNonPsychStageFile(stage:String):StageFile {
+		var modPath:String = Paths.modFolders('data/stages/' + stage + '.json');
+		var json = Json.parse(File.getContent(modPath));
+		return {
+			directory: "",
+			defaultZoom: json.cameraZoom,
+			isPixelStage: false,
+			stageUI: "normal",
+
+			boyfriend: json.characters.bf.position,
+			girlfriend: [json.characters.gf.position[0] - 340, json.characters.gf.position[1] - 670],
+			opponent: [json.characters.dad.position[0] - 300, json.characters.dad.position[1] - 550],
+			hide_girlfriend: false,
+
+			camera_boyfriend: json.characters.bf.cameraOffsets,
+			camera_opponent: [json.characters.dad.cameraOffsets[0] - 160, json.characters.dad.cameraOffsets[1] + 80],
+			camera_girlfriend: json.characters.gf.cameraOffsets,
+			camera_speed: 1
+		};
 	}
 
 	public static function vanillaSongStage(songName):String

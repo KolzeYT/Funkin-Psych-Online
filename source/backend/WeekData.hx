@@ -94,7 +94,8 @@ class WeekData {
 		var originalLength:Int = directories.length;
 
 		for (mod in Mods.parseList().enabled)
-			directories.push(Paths.mods(mod + '/'));
+			if(Mods.getModEngine(mod) == ModEngine.PSYCH)
+				directories.push(Paths.mods(mod + '/'));
 		#else
 		var directories:Array<String> = [Paths.getPreloadPath()];
 		var originalLength:Int = directories.length;
@@ -153,7 +154,62 @@ class WeekData {
 				}
 			}
 		}
+
+		reloadNonPsychWeeks();
 		#end
+	}
+
+	private static function reloadNonPsychWeeks(){
+		var directories:Array<String> = [];
+
+		for (mod in Mods.parseList().enabled)
+			if(Mods.getModEngine(mod) != ModEngine.PSYCH)
+				directories.push(Paths.mods(mod + '/'));
+
+		var weekFile:WeekData;
+		var mod;
+
+		for(dir in directories){
+			var songs:Array<String> = [];
+			mod = dir.replace("mods/", "").replace("/", "");
+			switch(Mods.getModEngine(mod)){
+				case ModEngine.VSLICE:
+					for (s in FileSystem.readDirectory(dir+"data/songs"))
+						songs.push(s);
+				default:
+					trace('non-compatible mod or no pack.json');
+			}
+			var weekSongs:Array<Dynamic> = [];
+			
+			for(s in songs){
+				var icon = Json.parse(File.getContent('${dir}data/songs/${s}/${s}-metadata.json')).playData.characters.opponent;
+				weekSongs.push([s, icon, [100, 100, 100], true, true]);
+			}
+
+			var data:Dynamic = {
+				songs: weekSongs,
+				weekCharacters: ["dad","bf","gf"],
+				weekBackground: "stage",
+				storyName: "Daddy Dearest",
+				weekBefore: "tutorial",
+				weekName: "Week 1",
+				hideStoryMode: true,
+				startUnloacked: true,
+				hideFreeplay: false,
+				hiddenUntilUnlocked: false,
+				freeplayColor: [100,100,100],
+				difficulties: 'easy, normal, hard'
+			};
+
+			weekFile = new WeekData(data, mod);
+			weekFile.folder = mod;
+		
+			trace(data, " ", songs, weekFile);
+			weeksLoaded.set(mod, weekFile);
+			weeksList.push(mod);
+
+		}
+
 	}
 
 	private static function addWeek(isStoryMode:Bool, weekToCheck:String, path:String, directory:String, i:Int, originalLength:Int)

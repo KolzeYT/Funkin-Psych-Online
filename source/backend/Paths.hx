@@ -279,6 +279,17 @@ class Paths
 		else
 		#end
 		{
+			#if MODS_ALLOWED
+			file = modFolders(Mods.currentModDirectory+"/"+library+"/images/"+key+".png");
+			if (currentTrackedAssets.exists(file))
+			{
+				localTrackedAssets.push(file);
+				return currentTrackedAssets.get(file);
+			}
+			else if (FileSystem.exists(file))
+				bitmap = BitmapData.fromFile(file);
+			#end
+
 			file = getPath('images/$key.png', IMAGE, library);
 			if (currentTrackedAssets.exists(file))
 			{
@@ -301,11 +312,15 @@ class Paths
 		return null;
 	}
 
-	static public function loadAnimateAtlas(spr:FlxAnimate, folderOrImg:String, ?spriteJson:Dynamic = null, ?animationJson:Dynamic = null, ?library:String = 'shared') {
-		if(spriteJson != null || animationJson != null)
-			Sys.println("The last 2 arguments of 'loadAnimateAtlas' are deprecated and do literally nothing.");
+	static public function loadAnimateAtlas(spr:FlxAnimate, folderOrImg:String, ?spriteJson:Dynamic = null, ?animationJson:Dynamic = null, ?library:String = null) {
 
-		spr.frames = FlxAnimateFrames.fromAnimate(getAtlasPath('images/$folderOrImg').replace("/Animation.json", ""));
+		var path = 'images/$folderOrImg';
+		if(library != null)
+			path = library + "/" + path;
+		spr.frames = FlxAnimateFrames.fromAnimate(getAtlasPath(path).replace("/Animation.json", ""));
+
+		if(spr.frames == null)
+			spr.frames = FlxAnimateFrames.fromAnimate(getAtlasPath('images/$folderOrImg').replace("/Animation.json", ""));
 	}
 
 	/**

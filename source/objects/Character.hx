@@ -37,6 +37,7 @@ typedef CharacterFile = {
 	@:optional var results_character:Null<String>;
 	@:optional var speaker:Null<String>;
 	@:optional var exportVersion:Null<Int>;
+	@:optional var library:Null<String>;
 }
 
 typedef AnimArray = {
@@ -140,6 +141,10 @@ class Character extends FlxAnimate {
 	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
 
 	public static function getCharacterFile(character:String, ?instance:Character, ?nullOnFail:Bool = false):CharacterFile {
+
+		if(Mods.getModEngine(Mods.currentModDirectory) != ModEngine.PSYCH && FileSystem.exists(Paths.modsJson("characters/" + character)))
+			return getNonPsychCharFile(character);
+
 		var characterPath:String = 'characters/' + character + '.json';
 
 		#if MODS_ALLOWED
@@ -168,6 +173,41 @@ class Character extends FlxAnimate {
 		#end
 
 		return cast Json.parse(rawJson);
+	}
+
+	public static function getNonPsychCharFile(character:String):CharacterFile {
+		var theSon = Json.parse(File.getContent(Paths.modsJson("characters/" + character)));
+
+		var anims:Array<Dynamic> = [];
+		for(i in 0...theSon.animations.length){
+			anims.push({
+				anim: theSon.animations[i].name,
+				name: theSon.animations[i].prefix,
+				loop: (theSon.animations[i]?.looped ?? false),
+				offsets: (theSon.animations[i]?.offsets ?? [0,0]),
+				fps: (theSon.animations[i]?.frameRate ?? 24)
+			});
+		}
+
+		var split = theSon.assetPath.split(':');
+
+		var template = {
+			animations: anims,
+			image: split.length != 1 ? split[1] : split[0],
+			library: split.length != 1 ? split[0] : null,
+			scale: (theSon?.scale ?? 1.0),
+			sing_duration: (theSon?.singTime ?? 8.0),
+			healthicon: (theSon.healthicon?.id ?? character),
+			position: theSon.offsets,
+			camera_position: (theSon?.cameraOffsets ?? [0.0,0.0]),
+			flip_x: (theSon?.flipX ?? false),
+			no_antialiasing: (theSon?.isPixel ?? false),
+			healthbar_colors: [255,255,255],
+			exportVersion: 1
+		};
+
+		return template;
+
 	}
 
 	public function loadSpeaker() {
@@ -222,16 +262,15 @@ class Character extends FlxAnimate {
 				// if (FileSystem.exists(modAnimToFind) || FileSystem.exists(animToFind) || Assets.exists(animToFind))
 				#end
 				
-				// if (true) {
 				trace(imageFile);
-				// }
 
 				if(Paths.image(imageFile) == null)
 				{
 					try
-					{
-						Paths.loadAnimateAtlas(this, imageFile);
-						applyStageMatrix = true; //behave more like flxanimate
+					{	
+						Paths.loadAnimateAtlas(this, imageFile, null, null, json.library);
+						if(json.exportVersion == null && !debugMode)
+							applyStageMatrix = true; //behave more like flxanimate
 					}
 					catch(e:Dynamic)
 					{
@@ -239,7 +278,7 @@ class Character extends FlxAnimate {
 						trace('Could not load atlas ${imageFile}: $e');
 					}
 				} else {
-					frames = Paths.getAtlas(imageFile);
+					frames = Paths.getAtlas(imageFile, json.library);
 				}
 
 				if (!isAnimateAtlas && frames != null) {
