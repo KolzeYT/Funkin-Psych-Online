@@ -972,7 +972,7 @@ class CharacterEditorState extends MusicBeatState {
 			char.frames = Paths.getSparrowAtlas(char.imageFile);
 		}
 
-		if(char.frames != null)
+		if(char.frames != null && !char.isAnimate)
 		{
 			for (i in char.imageFile.split(',')) {
 				if (!char.imageFile.contains(i))
