@@ -89,6 +89,26 @@ class FNFPsychBasic<T:PsychJsonFormat> extends FNFLegacyMetaBasic<T, {song:T}>
 		// resolve basic fnf events
 		switch (event.name)
 		{
+			case BasicFNFEvent.SET_CAMERA_BOP:
+				var data:BasicFNFSetCameraBopEvent = event.data;
+
+				return makePsychEvent(
+					event.time,
+					"Change Camera Bop",
+					Std.string(data.rate),
+					Std.string(data.intensity)
+				);
+
+			case BasicFNFEvent.ZOOM_CAMERA:
+				var data:BasicFNFZoomCameraEvent = event.data;
+
+				return makePsychEvent(
+					event.time,
+					"Tween Camera Zoom",	
+					data.zoom + "," + data.duration,
+					data.ease + "," + data.mode
+				);
+
 			case BasicFNFEvent.PLAY_ANIMATION:
 				var data:BasicFNFPlayAnimEvent = event.data;
 
@@ -103,10 +123,14 @@ class FNFPsychBasic<T:PsychJsonFormat> extends FNFLegacyMetaBasic<T, {song:T}>
 				var data:BasicFNFPositionCameraEvent = event.data;
                 trace(data);
 
-                if(data.x == 0 && data.y == 0)
-                    return makePsychEvent(event.time, "Focus Camera", Std.string(data.char), null);
+                var char = data.char == 2 ? "gf" : data.char == 1 ? "dad" : "bf";
                 
-				return makePsychEvent(event.time, "Camera Follow Pos", Std.string(data.x), Std.string(data.y));
+				return makePsychEvent(
+					event.time, 
+					"Must Hit Camera", 
+					char, 
+					data.duration + "," + data.ease + "," + data.x + "," + data.y
+				);
 		}
 
 		final values:Array<Dynamic> = Util.resolveEventValues(event);
