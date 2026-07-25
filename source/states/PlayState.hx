@@ -4414,8 +4414,7 @@ class PlayState extends MusicBeatState
 	public function moveCamera(isDad:Bool, ?toGirlfren:Bool = false, ?tX:Float, ?tY:Float)
 	{
 		if (toGirlfren && gf != null) {
-			var midpoint = gf.centeredCamera ? gf.getMidpoint() : gf.getPosition();
-			camFollow.setPosition(tX + midpoint.x, tY + midpoint.y);
+			camFollow.setPosition(tX + gf.getMidpoint().x, tY + gf.getMidpoint().y);
 			camFollow.x += gf.cameraPosition[0] + girlfriendCameraOffset[0];
 			camFollow.y += gf.cameraPosition[1] + girlfriendCameraOffset[1];
 			tweenCamIn();
@@ -4427,8 +4426,7 @@ class PlayState extends MusicBeatState
 
 		if(isDad)
 		{
-			var midpoint = dad.centeredCamera ? dad.getMidpoint() : dad.getPosition();
-			camFollow.setPosition(tX + midpoint.x + 150, tY + midpoint.y - 100);
+			camFollow.setPosition(tX + dad.getMidpoint().x + 150, tY + dad.getMidpoint().y - 100);
 			camFollow.x += dad.cameraPosition[0] + opponentCameraOffset[0];
 			camFollow.y += dad.cameraPosition[1] + opponentCameraOffset[1];
 			tweenCamIn();
@@ -4439,8 +4437,7 @@ class PlayState extends MusicBeatState
 		}
 		else
 		{
-			var midpoint = boyfriend.centeredCamera ? boyfriend.getMidpoint() : boyfriend.getPosition();
-			camFollow.setPosition(tX + midpoint.x - 100, tY + midpoint.y - 100);
+			camFollow.setPosition(tX + boyfriend.getMidpoint().x - 100, tY + boyfriend.getMidpoint().y - 100);
 			camFollow.x -= boyfriend.cameraPosition[0] - boyfriendCameraOffset[0];
 			camFollow.y += boyfriend.cameraPosition[1] + boyfriendCameraOffset[1];
 
